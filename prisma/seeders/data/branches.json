@@ -1,0 +1,29 @@
+{
+    "data": [
+        {
+            "name": "Main Branch",
+            "address": "Jl. Example No. 123",
+            "phone": "08123456789"
+        },
+        {
+            "name": "Jakarta Branch",
+            "address": "Jl. Example No. 123",
+            "phone": "08123456789"
+        },
+        {
+            "name": "Bandung Branch",
+            "address": "Jl. Example No. 123",
+            "phone": "08123456789"
+        },
+        {
+            "name": "Surabaya Branch",
+            "address": "Jl. Example No. 123",
+            "phone": "08123456789"
+        },
+        {
+            "name": "Medan Branch",
+            "address": "Jl. Example No. 123",
+            "phone": "08123456789"
+        }
+    ]
+}
