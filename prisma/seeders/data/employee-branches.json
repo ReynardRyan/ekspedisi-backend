@@ -1,0 +1,49 @@
+{
+    "data": [
+        {
+            "name": "Budi Santoso",
+            "email": "budi.santoso@kirimaja.com",
+            "password": "password123",
+            "phoneNumber": "081122334455",
+            "roleKey": "admin_branch",
+            "branchName": "Main Branch",
+            "type": "admin"
+        },
+        {
+            "name": "Siti Aminah",
+            "email": "siti.aminah@kirimaja.com",
+            "password": "password123",
+            "phoneNumber": "082233445566",
+            "roleKey": "admin_branch",
+            "branchName": "Jakarta Branch",
+            "type": "admin"
+        },
+        {
+            "name": "Agus Pratama",
+            "email": "agus.pratama@kirimaja.com",
+            "password": "password123",
+            "phoneNumber": "083344556677",
+            "roleKey": "courier",
+            "branchName": "Bandung Branch",
+            "type": "courier"
+        },
+        {
+            "name": "Rini Wati",
+            "email": "rini.wati@kirimaja.com",
+            "password": "password123",
+            "phoneNumber": "084455667788",
+            "roleKey": "admin_branch",
+            "branchName": "Surabaya Branch",
+            "type": "admin"
+        },
+        {
+            "name": "Doni Setiawan",
+            "email": "doni.setiawan@kirimaja.com",
+            "password": "password123",
+            "phoneNumber": "085566778899",
+            "roleKey": "courier",
+            "branchName": "Medan Branch",
+            "type": "courier"
+        }
+    ]
+}
