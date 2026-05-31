@@ -12,10 +12,11 @@ import { EmployeeBranchesModule } from './modules/employee-branches/employee-bra
 import { UserAddressesModule } from './modules/user-addresses/user-addresses.module';
 import { EmailService } from './common/email/email.service';
 import { QueueModule } from './common/queue/queue.module';
+import { ShipmentsModule } from './modules/shipments/shipments.module';
 
 
 @Module({
-    imports: [AuthModule, RolesModule, PermissionsModule, ProfileModule, BranchesModule, EmployeeBranchesModule, UserAddressesModule, QueueModule],
+    imports: [AuthModule, RolesModule, PermissionsModule, ProfileModule, BranchesModule, EmployeeBranchesModule, UserAddressesModule, QueueModule, ShipmentsModule],
     controllers: [AppController],
     providers: [AppService, JwtStrategy, PrismaService, EmailService],
 })

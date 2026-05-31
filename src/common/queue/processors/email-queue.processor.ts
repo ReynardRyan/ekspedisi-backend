@@ -6,8 +6,12 @@ import { EmailService } from "src/common/email/email.service";
 export interface EmailJobData {
     type: string;
     to: string;
-    subject: string;
-    html: string;
+    subject?: string;
+    html?: string;
+    shipmentId?: number;
+    amount?: number;
+    expiryDate?: Date;
+    paymentUrl?: string;
 }
 
 @Processor('email-queue')
@@ -20,12 +24,15 @@ export class EmailQueueProcessor {
 
     @Process('send-email')
     async handleSendEmail(job: Job<EmailJobData>) {
-        const { type, to, subject, html } = job.data;
+        const { type, to, subject, html, shipmentId, paymentUrl, amount, expiryDate } = job.data;
 
         try {
             switch (type) {
                 case 'send-email':
-                    await this.emailService.sendMail(to, subject, html);
+                    await this.emailService.sendMail(to, subject || '', html || '');
+                    break;
+                case 'payment-notification':
+                    await this.emailService.sendEmailPaymentNotification(to, paymentUrl || '', shipmentId || 0, amount || 0, expiryDate || new Date());
                     break;
                 default:
                     break;
