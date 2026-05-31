@@ -55,7 +55,10 @@ export class EmailService {
         const templateContent = this.compileTemplate('payment-notification', {
             paymentUrl,
             shipmentId,
-            amount,
+            amount: amount.toLocaleString('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+            }),
             expiryDate: expiryDate.toLocaleString('id-ID', {
                 dateStyle: 'full',
                 timeStyle: 'short',

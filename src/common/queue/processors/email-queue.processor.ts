@@ -32,7 +32,8 @@ export class EmailQueueProcessor {
                     await this.emailService.sendMail(to, subject || '', html || '');
                     break;
                 case 'payment-notification':
-                    await this.emailService.sendEmailPaymentNotification(to, paymentUrl || '', shipmentId || 0, amount || 0, expiryDate || new Date());
+                    const expiryDateConvert = typeof expiryDate === 'string' ? new Date(expiryDate) : expiryDate || new Date();
+                    await this.emailService.sendEmailPaymentNotification(to, paymentUrl || '', shipmentId || 0, amount || 0, expiryDateConvert);
                     break;
                 default:
                     break;
