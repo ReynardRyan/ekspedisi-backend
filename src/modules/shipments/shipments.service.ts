@@ -133,6 +133,17 @@ export class ShipmentsService {
       console.log(error);
     }
 
+    try {
+      await this.queue.addPaymentExpiryJob({
+        paymentId: payment.id,
+        shipmentId: shipment.id,
+        externalId: invoice.externalId,
+      },
+        invoice.expiryDate)
+    } catch (error) {
+      console.log(error);
+    }
+
     return shipment;
 
   }
