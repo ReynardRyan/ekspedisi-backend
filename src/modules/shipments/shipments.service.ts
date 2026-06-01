@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateShipmentDto } from './dto/update-shipment.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
@@ -8,6 +8,9 @@ import { xenditService } from 'src/common/xendit/xendit.service';
 import { Shipment } from '@prisma/client';
 import { getDistance } from 'geolib';
 import { PaymentStatus } from 'src/common/enum/payment-status.enum';
+import { XenditWebhookDto } from './dto/xendit-webhook.dto';
+import { QrCodeService } from 'src/common/qrcode/qrcode.service';
+import { ShipmentStatus } from 'src/common/enum/shipment-status.enum';
 
 @Injectable()
 export class ShipmentsService {
@@ -16,7 +19,8 @@ export class ShipmentsService {
     private prisma: PrismaService,
     private queue: QueueService,
     private openCage: OpencageService,
-    private xendit: xenditService
+    private xendit: xenditService,
+    private qrcode: QrCodeService
   ) { }
 
   async create(createShipmentDto: CreateShipmentDto): Promise<Shipment> {
@@ -145,6 +149,95 @@ export class ShipmentsService {
     }
 
     return shipment;
+  }
+
+  async handlePaymentWebhook(webHookData: XenditWebhookDto): Promise<void> {
+    const payment = await this.prisma.payment.findFirst({
+      where: {
+        externalId: webHookData.external_id,
+      },
+      include: {
+        shipment: {
+          include: {
+            shipmentDetail: {
+              include: {
+                user: true
+              }
+            }
+          }
+        }
+      }
+    })
+
+    if (!payment) {
+      throw new NotFoundException("Payment not found");
+    }
+
+    await this.prisma.$transaction(async (prisma) => {
+      const updatedPayment = await prisma.payment.update({
+        where: {
+          id: payment.id
+        },
+        data: {
+          status: webHookData.status,
+          paymentMethod: webHookData.payment_method,
+        }
+      })
+
+      if (webHookData.status === 'PAID' || webHookData.status === 'SETTLED') {
+        const trackingNumber = `KA${webHookData.id}`;
+
+        let qrcodeImagePath: string | null = null;
+        try {
+          qrcodeImagePath = await this.qrcode.generateQrCode(trackingNumber);
+        } catch (error) {
+          throw new BadRequestException("Failed to generate QR code");
+        }
+
+        await prisma.shipment.update({
+          where: {
+            id: payment.shipmentId
+          },
+          data: {
+            trackingNumber,
+            deliveryStatus: ShipmentStatus.READY_TO_PICKUP,
+            paymentStatus: webHookData.status,
+            qrCodeImage: qrcodeImagePath,
+          }
+        });
+
+        await prisma.shipmentHistory.create({
+          data: {
+            shipmentId: payment.shipmentId,
+            status: ShipmentStatus.READY_TO_PICKUP,
+            description: `Shipment payment status updated to ${webHookData.status}`,
+            userId: payment.shipment.shipmentDetail?.userId,
+          }
+        })
+
+        try {
+          await this.queue.cancelPaymentExpiryJob(payment.id)
+        } catch (error) {
+          throw new BadRequestException("Failed to cancel payment expiry job");
+        }
+
+        try {
+          const userEmail = payment.shipment.shipmentDetail?.user.email;
+
+          if (userEmail) {
+            await this.queue.addEmailJob({
+              type: 'payment-success',
+              to: userEmail,
+              shipmentId: payment.shipmentId,
+              trackingNumber: payment.shipment.trackingNumber || undefined,
+              amount: payment.shipment.price || webHookData.amount
+            })
+          }
+        } catch (error) {
+
+        }
+      }
+    })
 
   }
 

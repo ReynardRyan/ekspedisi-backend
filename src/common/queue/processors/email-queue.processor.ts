@@ -12,6 +12,7 @@ export interface EmailJobData {
     amount?: number;
     expiryDate?: Date;
     paymentUrl?: string;
+    trackingNumber?: string;
 }
 
 @Processor('email-queue')
@@ -24,7 +25,7 @@ export class EmailQueueProcessor {
 
     @Process('send-email')
     async handleSendEmail(job: Job<EmailJobData>) {
-        const { type, to, subject, html, shipmentId, paymentUrl, amount, expiryDate } = job.data;
+        const { type, to, subject, html, shipmentId, paymentUrl, amount, expiryDate, trackingNumber } = job.data;
 
         try {
             switch (type) {
@@ -34,6 +35,9 @@ export class EmailQueueProcessor {
                 case 'payment-notification':
                     const expiryDateConvert = typeof expiryDate === 'string' ? new Date(expiryDate) : expiryDate || new Date();
                     await this.emailService.sendEmailPaymentNotification(to, paymentUrl || '', shipmentId || 0, amount || 0, expiryDateConvert);
+                    break;
+                case 'payment-success':
+                    await this.emailService.sendPaymentSuccess(to, shipmentId || 0, amount || 0, trackingNumber || '');
                     break;
                 default:
                     break;

@@ -71,4 +71,31 @@ export class EmailService {
             html: templateContent,
         });
     }
+
+    async sendPaymentSuccess(
+        to: string,
+        shipmentId: number,
+        amount: number,
+        trackingNumber: string
+    ): Promise<void> {
+        const subject = `Pembayaran Pengiriman #${shipmentId}`;
+        const templateContent = this.compileTemplate('payment-success', {
+            shipmentId,
+            amount: amount.toLocaleString('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+            }),
+            trackingNumber,
+            paymentDate: new Date().toLocaleString('id-ID', {
+                dateStyle: 'full',
+                timeStyle: 'short',
+            }),
+        })
+        await this.transporter.sendMail({
+            from: `"Kirimaja" <${process.env.SMTP_EMAIL_SENDER}>`,
+            to,
+            subject,
+            html: templateContent,
+        });
+    }
 }

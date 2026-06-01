@@ -50,4 +50,15 @@ export class QueueService {
             },
         });
     }
+
+    async cancelPaymentExpiryJob(paymentId: number) {
+        const jobs = await this.paymentExpiryQueue.getJobs(['delayed', 'waiting']);
+
+        for (const job of jobs) {
+            if (job.data.paymentId === paymentId) {
+                await job.remove();
+                break;
+            }
+        }
+    }
 }

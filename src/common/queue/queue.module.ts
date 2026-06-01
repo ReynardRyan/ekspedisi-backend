@@ -5,6 +5,7 @@ import { EmailQueueProcessor } from "./processors/email-queue.processor";
 import { EmailService } from "src/common/email/email.service";
 import { PaymentExpiryQueueProcessor } from "./processors/payment-expired-queue.processor";
 import { PrismaService } from "../prisma/prisma.service";
+import { xenditService } from "../xendit/xendit.service";
 
 @Module({
     imports: [
@@ -23,7 +24,7 @@ import { PrismaService } from "../prisma/prisma.service";
         })
     ],
     controllers: [],
-    providers: [EmailService, EmailQueueProcessor, QueueService, PaymentExpiryQueueProcessor, PrismaService],
+    providers: [EmailService, EmailQueueProcessor, QueueService, PaymentExpiryQueueProcessor, PrismaService, xenditService],
     exports: [QueueService]
 })
 
